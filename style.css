@@ -527,6 +527,8 @@ body::after {
     max-height: 80%;
     border-radius: 10px;
     touch-action: none;
+    user-select: none;
+    pointer-events: none;
 }
 
 #fechar-lightbox {

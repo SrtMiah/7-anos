@@ -208,7 +208,7 @@ fechar.addEventListener("click", fecharLightbox);
 
 // ===== FECHAR CLICANDO FORA =====
 lightbox.addEventListener("click", (e) => {
-    if (e.target !== lightboxImg && e.target.id !== "fechar") {
+    if (e.target === lightbox) {
         fecharLightbox();
     }
 });
@@ -232,25 +232,24 @@ function pararAutoSlide() {
 
 // ===== SWIPE PARA MUDAR IMAGEM =====
 let startX = 0;
-let isDragging = false;
+let startY = 0;
 
-lightboxImg.addEventListener("touchstart", (e) => {
+lightbox.addEventListener("touchstart", (e) => {
     startX = e.touches[0].clientX;
-    isDragging = true;
+    startY = e.touches[0].clientY;
 }, { passive: true });
 
-lightboxImg.addEventListener("touchmove", () => {
-    isDragging = true;
-});
-
-lightboxImg.addEventListener("touchend", (e) => {
-    if (!isDragging) return;
-
+lightbox.addEventListener("touchend", (e) => {
     let endX = e.changedTouches[0].clientX;
-    let diff = startX - endX;
+    let endY = e.changedTouches[0].clientY;
 
-    if (Math.abs(diff) > 50) {
-        if (diff > 0) {
+    let diffX = startX - endX;
+    let diffY = startY - endY;
+
+    // 🔥 evita conflito com scroll vertical
+    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+
+        if (diffX > 0) {
             indexAtual = (indexAtual + 1) % imagens.length;
         } else {
             indexAtual = (indexAtual - 1 + imagens.length) % imagens.length;
@@ -259,6 +258,4 @@ lightboxImg.addEventListener("touchend", (e) => {
         mostrarImagem();
         reiniciarAutoSlide();
     }
-
-    isDragging = false;
 });
