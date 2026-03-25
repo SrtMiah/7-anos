@@ -186,8 +186,10 @@ const lightboxImg = document.getElementById("lightbox-img");
 const fechar = document.getElementById("fechar");
 
 let indexAtual = 0;
+let autoSlide;
+let startX = 0;
 
-// abrir imagem
+// ===== ABRIR =====
 imagens.forEach((img, index) => {
     img.addEventListener("click", () => {
         indexAtual = index;
@@ -201,44 +203,22 @@ function mostrarImagem() {
     lightboxImg.src = imagens[indexAtual].src;
 }
 
-// fechar
-fechar.addEventListener("click", () => {
+// ===== FECHAR BOTÃO =====
+fechar.addEventListener("click", fecharLightbox);
+
+// ===== FECHAR CLICANDO FORA =====
+lightbox.addEventListener("click", (e) => {
+    if (e.target === lightbox) {
+        fecharLightbox();
+    }
+});
+
+function fecharLightbox() {
     lightbox.style.display = "none";
     pararAutoSlide();
-});
-
-// swipe (arrastar)
-let startX = 0;
-let endX = 0;
-
-lightbox.addEventListener("touchstart", (e) => {
-    startX = e.touches[0].clientX;
-}, { passive: true });
-
-lightbox.addEventListener("touchend", (e) => {
-    endX = e.changedTouches[0].clientX;
-    handleSwipe();
-});
-
-function handleSwipe() {
-    let diff = startX - endX;
-
-    if (Math.abs(diff) > 50) {
-        if (diff > 0) {
-            // próxima
-            indexAtual = (indexAtual + 1) % imagens.length;
-        } else {
-            // anterior
-            indexAtual = (indexAtual - 1 + imagens.length) % imagens.length;
-        }
-
-        mostrarImagem();
-        reiniciarAutoSlide();
-    }
 }
 
-let autoSlide;
-
+// ===== AUTO SLIDE =====
 function iniciarAutoSlide() {
     autoSlide = setInterval(() => {
         indexAtual = (indexAtual + 1) % imagens.length;
@@ -250,14 +230,28 @@ function pararAutoSlide() {
     clearInterval(autoSlide);
 }
 
+// ===== SWIPE =====
+lightbox.addEventListener("touchstart", (e) => {
+    startX = e.touches[0].clientX;
+}, { passive: true });
+
+lightbox.addEventListener("touchend", (e) => {
+    let endX = e.changedTouches[0].clientX;
+    let diff = startX - endX;
+
+    if (Math.abs(diff) > 50) {
+        if (diff > 0) {
+            indexAtual = (indexAtual + 1) % imagens.length;
+        } else {
+            indexAtual = (indexAtual - 1 + imagens.length) % imagens.length;
+        }
+
+        mostrarImagem();
+        reiniciarAutoSlide();
+    }
+});
+
 function reiniciarAutoSlide() {
     pararAutoSlide();
     iniciarAutoSlide();
 }
-
-lightbox.addEventListener("click", (e) => {
-    if (e.target === lightbox) {
-        lightbox.style.display = "none";
-        pararAutoSlide();
-    }
-});
