@@ -237,24 +237,33 @@ function reiniciarAutoSlide() {
 
 // ===== SWIPE PARA MUDAR IMAGEM =====
 let startX = 0;
-let startY = 0;
+let currentX = 0;
+let isSwiping = false;
 
-lightbox.addEventListener("touchstart", (e) => {
+lightboxImg.addEventListener("touchstart", (e) => {
     startX = e.touches[0].clientX;
-    startY = e.touches[0].clientY;
+    isSwiping = true;
 }, { passive: true });
 
-lightbox.addEventListener("touchend", (e) => {
-    let endX = e.changedTouches[0].clientX;
-    let endY = e.changedTouches[0].clientY;
+lightboxImg.addEventListener("touchmove", (e) => {
+    if (!isSwiping) return;
 
-    let diffX = startX - endX;
-    let diffY = startY - endY;
+    currentX = e.touches[0].clientX;
+    let diff = startX - currentX;
 
-    // 🔥 evita conflito com scroll vertical
-    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+    // impede o scroll horizontal
+    if (Math.abs(diff) > 10) {
+        e.preventDefault(); // 🔥 ESSENCIAL
+    }
+}, { passive: false });
 
-        if (diffX > 0) {
+lightboxImg.addEventListener("touchend", () => {
+    if (!isSwiping) return;
+
+    let diff = startX - currentX;
+
+    if (Math.abs(diff) > 50) {
+        if (diff > 0) {
             indexAtual = (indexAtual + 1) % imagens.length;
         } else {
             indexAtual = (indexAtual - 1 + imagens.length) % imagens.length;
@@ -263,4 +272,6 @@ lightbox.addEventListener("touchend", (e) => {
         mostrarImagem();
         reiniciarAutoSlide();
     }
+
+    isSwiping = false;
 });

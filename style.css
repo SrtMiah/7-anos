@@ -528,7 +528,6 @@ body::after {
     max-width: 85%;
     max-height: 75%;
     border-radius: 10px;
-    pointer-events: none;
     touch-action: none;
 }
 
