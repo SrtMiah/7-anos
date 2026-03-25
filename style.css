@@ -529,6 +529,7 @@ body::after {
     max-height: 75%;
     border-radius: 10px;
     touch-action: none;
+    transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
 #fechar-lightbox {
@@ -538,4 +539,22 @@ body::after {
     font-size: 40px;
     color: white;
     cursor: pointer;
+}
+
+#indicador {
+    position: absolute;
+    bottom: 20px;
+    display: flex;
+    gap: 6px;
+}
+
+.bolinha {
+    width: 8px;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 50%;
+}
+
+.bolinha.ativa {
+    background: white;
 }

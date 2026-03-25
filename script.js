@@ -7,13 +7,13 @@ botaoAbrir.addEventListener("click", () => {
     // animação de abrir carta
     const carta = document.querySelector(".carta");
     carta.classList.add("aberta"); // você pode criar uma classe .aberta no CSS para animação
-    
+
     setTimeout(() => {
         // Esconde a carta fechada
         cartaFechada.style.display = "none";
         // Mostra o conteúdo principal
         conteudo.style.display = "block";
-        
+
         // Inicia corações de fundo, rastro e explosão
         loopCoracoesFundo();
         // o rastro e explosão continuam funcionando como estão
@@ -199,8 +199,19 @@ imagens.forEach((img, index) => {
     });
 });
 
-function mostrarImagem() {
-    lightboxImg.src = imagens[indexAtual].src;
+function mostrarImagem(direcao = 0) {
+    lightboxImg.style.transition = "none";
+    lightboxImg.style.transform = `translateX(${direcao * 100}%)`;
+    lightboxImg.style.opacity = 0;
+
+    setTimeout(() => {
+        lightboxImg.src = imagens[indexAtual].src;
+
+        lightboxImg.style.transition = "transform 0.3s ease, opacity 0.3s ease";
+        lightboxImg.style.transform = "translateX(0)";
+        lightboxImg.style.opacity = 1;
+    }, 50);
+    criarIndicador();
 }
 
 // ===== FECHAR CLICANDO FORA =====
@@ -213,13 +224,16 @@ lightbox.addEventListener("click", (e) => {
 function fecharLightbox() {
     lightbox.style.display = "none";
     pararAutoSlide();
+    criarIndicador();
 }
 
 // ===== AUTO SLIDE =====
 function iniciarAutoSlide() {
+    pararAutoSlide(); // 🔥 mata qualquer intervalo anterior
+
     autoSlide = setInterval(() => {
         indexAtual = (indexAtual + 1) % imagens.length;
-        mostrarImagem();
+        mostrarImagem(1);
     }, 3000);
 }
 
@@ -236,10 +250,14 @@ function reiniciarAutoSlide() {
 let startX = 0;
 let currentX = 0;
 let isSwiping = false;
+let jaMoveu = false;
 
 lightboxImg.addEventListener("touchstart", (e) => {
     startX = e.touches[0].clientX;
     isSwiping = true;
+    jaMoveu = false;
+
+    pararAutoSlide(); // 🔥 pausa aqui
 }, { passive: true });
 
 lightboxImg.addEventListener("touchmove", (e) => {
@@ -248,11 +266,31 @@ lightboxImg.addEventListener("touchmove", (e) => {
     currentX = e.touches[0].clientX;
     let diff = startX - currentX;
 
-    // impede o scroll horizontal
     if (Math.abs(diff) > 10) {
-        e.preventDefault(); // 🔥 ESSENCIAL
+        jaMoveu = true;
+        e.preventDefault();
     }
 }, { passive: false });
+
+lightboxImg.addEventListener("touchend", () => {
+    if (!isSwiping) return;
+
+    let diff = startX - currentX;
+
+    if (jaMoveu && Math.abs(diff) > 50) {
+        if (diff > 0) {
+            indexAtual = (indexAtual + 1) % imagens.length;
+            mostrarImagem(1);
+        } else {
+            indexAtual = (indexAtual - 1 + imagens.length) % imagens.length;
+            mostrarImagem(-1);
+        }
+    }
+
+    isSwiping = false;
+
+    iniciarAutoSlide(); // 🔥 volta aqui
+});
 
 lightboxImg.addEventListener("touchend", () => {
     if (!isSwiping) return;
@@ -262,13 +300,77 @@ lightboxImg.addEventListener("touchend", () => {
     if (Math.abs(diff) > 50) {
         if (diff > 0) {
             indexAtual = (indexAtual + 1) % imagens.length;
+            mostrarImagem(1); // 👉 vem da direita
         } else {
             indexAtual = (indexAtual - 1 + imagens.length) % imagens.length;
+            mostrarImagem(-1); // 👉 vem da esquerda
         }
 
-        mostrarImagem();
         reiniciarAutoSlide();
     }
 
     isSwiping = false;
+});
+
+const indicador = document.getElementById("indicador");
+
+function criarIndicador() {
+    indicador.innerHTML = "";
+
+    imagens.forEach((_, i) => {
+        const bolinha = document.createElement("div");
+        bolinha.classList.add("bolinha");
+
+        if (i === indexAtual) {
+            bolinha.classList.add("ativa");
+        }
+
+        indicador.appendChild(bolinha);
+    });
+}
+
+lightboxImg.addEventListener("touchstart", () => {
+    pararAutoSlide();
+});
+
+lightboxImg.addEventListener("touchend", () => {
+    iniciarAutoSlide();
+});
+
+let escala = 1;
+let distanciaInicial = 0;
+
+function getDistancia(touches) {
+    let dx = touches[0].clientX - touches[1].clientX;
+    let dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+}
+
+lightboxImg.addEventListener("touchstart", (e) => {
+    if (e.touches.length === 2) {
+        distanciaInicial = getDistancia(e.touches);
+    }
+}, { passive: true });
+
+lightboxImg.addEventListener("touchmove", (e) => {
+    if (e.touches.length === 2) {
+        e.preventDefault();
+
+        let novaDistancia = getDistancia(e.touches);
+        let zoom = novaDistancia / distanciaInicial;
+
+        escala = Math.min(Math.max(1, zoom), 3); // limite entre 1x e 3x
+
+        lightboxImg.style.transform = `scale(${escala})`;
+    }
+}, { passive: false });
+
+lightboxImg.addEventListener("touchend", () => {
+    if (escala === 1) return;
+
+    // opcional: reset suave ao soltar
+    setTimeout(() => {
+        lightboxImg.style.transform = "scale(1)";
+        escala = 1;
+    }, 2000);
 });
