@@ -253,6 +253,8 @@ let isSwiping = false;
 let jaMoveu = false;
 
 lightboxImg.addEventListener("touchstart", (e) => {
+    if (e.touches.length > 1) return; // ignora multi-touch
+    
     startX = e.touches[0].clientX;
     isSwiping = true;
     jaMoveu = false;
@@ -292,26 +294,6 @@ lightboxImg.addEventListener("touchend", () => {
     iniciarAutoSlide(); // 🔥 volta aqui
 });
 
-lightboxImg.addEventListener("touchend", () => {
-    if (!isSwiping) return;
-
-    let diff = startX - currentX;
-
-    if (Math.abs(diff) > 50) {
-        if (diff > 0) {
-            indexAtual = (indexAtual + 1) % imagens.length;
-            mostrarImagem(1); // 👉 vem da direita
-        } else {
-            indexAtual = (indexAtual - 1 + imagens.length) % imagens.length;
-            mostrarImagem(-1); // 👉 vem da esquerda
-        }
-
-        reiniciarAutoSlide();
-    }
-
-    isSwiping = false;
-});
-
 const indicador = document.getElementById("indicador");
 
 function criarIndicador() {
@@ -328,14 +310,6 @@ function criarIndicador() {
         indicador.appendChild(bolinha);
     });
 }
-
-lightboxImg.addEventListener("touchstart", () => {
-    pararAutoSlide();
-});
-
-lightboxImg.addEventListener("touchend", () => {
-    iniciarAutoSlide();
-});
 
 let escala = 1;
 let distanciaInicial = 0;
