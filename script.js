@@ -254,7 +254,7 @@ let jaMoveu = false;
 
 lightboxImg.addEventListener("touchstart", (e) => {
     if (e.touches.length > 1) return; // ignora multi-touch
-    
+
     startX = e.touches[0].clientX;
     isSwiping = true;
     jaMoveu = false;
@@ -297,7 +297,7 @@ lightboxImg.addEventListener("touchend", () => {
 const indicador = document.getElementById("indicador");
 
 function criarIndicador() {
-    indicador.innerHTML = "";
+    indicador.innerHTML = ""; 
 
     imagens.forEach((_, i) => {
         const bolinha = document.createElement("div");
