@@ -486,7 +486,7 @@ body::after {
     }
 
     .galeria {
-        max-width: grid;
+        display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 10px;
         justify-items: center;
@@ -525,12 +525,11 @@ body::after {
 }
 
 #lightbox img {
-    max-width: 90%;
-    max-height: 80%;
+    max-width: 85%;
+    max-height: 75%;
     border-radius: 10px;
-    touch-action: none;
-    user-select: none;
     pointer-events: none;
+    touch-action: none;
 }
 
 #fechar-lightbox {

@@ -223,7 +223,7 @@ function iniciarAutoSlide() {
     autoSlide = setInterval(() => {
         indexAtual = (indexAtual + 1) % imagens.length;
         mostrarImagem();
-    }, 4000);
+    }, 3000);
 }
 
 function pararAutoSlide() {
